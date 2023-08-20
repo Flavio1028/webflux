@@ -37,4 +37,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public Mono<User> update(final String id, final UserRequest request) {
+        return findById(id).map(entity -> mapper.toEntity(request, entity))
+                .flatMap(userRepository::save);
+    }
+
 }
