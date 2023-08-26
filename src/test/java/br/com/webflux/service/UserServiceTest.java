@@ -16,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +32,7 @@ class UserServiceTest {
     private UserService service;
 
     @Test
-    void save() {
+    void testSave() {
 
         UserRequest request = new UserRequest("test", "teste@teste.com", "123");
         User entity = User.builder().build();
@@ -47,6 +48,24 @@ class UserServiceTest {
                 .verify();
 
         Mockito.verify(repository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void testFindById() {
+
+        Mockito.when(repository.findById(anyString())).thenReturn(Mono.just(User.builder()
+                .id("123")
+                .build()));
+
+        Mono<User> result = service.findById("123");
+
+        StepVerifier.create(result)
+                .expectNextMatches(user -> user.getClass() == User.class
+                        && user.getId().equals("123"))
+                .expectComplete()
+                .verify();
+
+        Mockito.verify(repository, times(1)).findById(anyString());
     }
 
 }
