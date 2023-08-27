@@ -38,6 +38,7 @@ class UserControllerImplTest {
     public static final String EMAIL = "test@test.com";
 
     public static final String PASSWORD = "123";
+    public static final String BASE_URI = "/users";
 
     @Autowired
     private WebTestClient webTestClient;
@@ -61,7 +62,7 @@ class UserControllerImplTest {
 
         webTestClient
                 .post()
-                .uri("/users")
+                .uri(BASE_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange()
@@ -78,7 +79,7 @@ class UserControllerImplTest {
 
         webTestClient
                 .post()
-                .uri("/users")
+                .uri(BASE_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange()
@@ -104,7 +105,7 @@ class UserControllerImplTest {
 
         webTestClient
                 .get()
-                .uri("/users/" + "123456")
+                .uri(BASE_URI + "/123456")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -126,7 +127,7 @@ class UserControllerImplTest {
 
         webTestClient
                 .get()
-                .uri("/users")
+                .uri(BASE_URI)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -140,7 +141,7 @@ class UserControllerImplTest {
 
     @Test
     @DisplayName("Test update endpoint with success")
-    void update() {
+    void testUpdateWithSuccess() {
 
         final UserRequest request = new UserRequest(NAME, EMAIL, PASSWORD);
         final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
@@ -150,7 +151,7 @@ class UserControllerImplTest {
 
         webTestClient
                 .patch()
-                .uri("/users/" + ID)
+                .uri(BASE_URI + "/" + ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange()
@@ -165,6 +166,17 @@ class UserControllerImplTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Test delete endpoint with success")
+    void testDeleteWhitSuccess() {
+
+        Mockito.when(service.delete(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+        webTestClient
+                .delete()
+                .uri(BASE_URI + "/" + ID)
+                .exchange()
+                .expectStatus().isOk();
+
+        Mockito.verify(service, times(1)).delete(anyString());
     }
 }
